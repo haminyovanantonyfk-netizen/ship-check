@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShipCheck — Free Pre-Launch Check for Developers (Repo, Dependencies, Domain)</title>
+<meta name="description" content="ShipCheck is the free all-in-one pre-launch check for developers: audit your GitHub repo, scan your npm dependencies for vulnerabilities and abandonment, and verify your domain's email DNS (SPF, DKIM, DMARC) — then generate the fixes. No account, runs in your browser.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0b6e4f">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="icon.svg" alt="" class="logo">
+    <div>
+      <h1>ShipCheck</h1>
+      <p class="tagline">Launch with confidence — the free all-in-one pre-launch check for developers.</p>
+    </div>
+  </div>
+  <button id="themeBtn" class="ghost" type="button" aria-label="Toggle dark mode">🌙</button>
+</header>
+
+<section class="scorebar card">
+  <div class="score-main">
+    <div class="score-num" id="overallScore">—</div>
+    <div>
+      <h2>Launch Readiness</h2>
+      <p class="muted" id="overallHint">Run the three checks below. Your overall score is the average of the checks you've run.</p>
+    </div>
+  </div>
+  <div class="score-chips">
+    <span class="chip">📦 Repo: <b id="chipRepo">not run</b></span>
+    <span class="chip">🧩 Dependencies: <b id="chipDeps">not run</b></span>
+    <span class="chip">🌐 Domain: <b id="chipDomain">not run</b></span>
+  </div>
+  <button id="exportBtn" class="primary" type="button" disabled>⬇ Export full report (.md)</button>
+</section>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-tab="repo" type="button">📦 1 · GitHub Repo</button>
+  <button class="tab" data-tab="deps" type="button">🧩 2 · Dependencies</button>
+  <button class="tab" data-tab="domain" type="button">🌐 3 · Domain &amp; Email</button>
+</nav>
+
+<!-- ============ REPO ============ -->
+<section id="panel-repo" class="panel card">
+  <h2>GitHub repo audit</h2>
+  <p class="muted">Checks the things visitors, contributors and employers look for — README quality, license, CI, community files — using GitHub's own data, including its Community Profile health score. Missing files? ShipCheck <b>writes them for you</b> below the results.</p>
+  <div class="row">
+    <input id="repoInput" type="text" placeholder="owner/repo or https://github.com/owner/repo" autocomplete="off">
+    <input id="authorInput" type="text" placeholder="Your name (for the LICENSE)" autocomplete="name">
+    <button id="repoBtn" class="primary" type="button">Check repo</button>
+    <button id="repoSample" class="ghost" type="button">Try a sample</button>
+  </div>
+  <p id="repoMsg" class="msg" role="status"></p>
+  <div id="repoResults"></div>
+  <div id="repoFixes"></div>
+</section>
+
+<!-- ============ DEPS ============ -->
+<section id="panel-deps" class="panel card hidden">
+  <h2>Dependency risk scan (npm)</h2>
+  <p class="muted">Paste your <code>package.json</code>. Every dependency is checked live against the npm registry and the OSV vulnerability database: outdated (patch/minor/major), deprecated, abandoned, and known CVEs — plus the exact <code>npm install</code> command that fixes them. Your file is parsed in your browser; only package names and versions are sent to those public APIs.</p>
+  <textarea id="depsInput" rows="9" placeholder='Paste package.json here, e.g. { "dependencies": { "react": "^18.2.0" } }' spellcheck="false"></textarea>
+  <div class="row">
+    <label class="checkline"><input type="checkbox" id="devDepsChk" checked> Include devDependencies</label>
+    <input type="file" id="depsFile" accept=".json,application/json" class="hidden">
+    <button id="depsUpload" class="ghost" type="button">Upload package.json</button>
+    <button id="depsSample" class="ghost" type="button">Load sample with known problems</button>
+    <button id="depsBtn" class="primary" type="button">Scan dependencies</button>
+  </div>
+  <p id="depsMsg" class="msg" role="status"></p>
+  <div id="depsResults"></div>
+</section>
+
+<!-- ============ DOMAIN ============ -->
+<section id="panel-domain" class="panel card hidden">
+  <h2>Domain &amp; email readiness</h2>
+  <p class="muted">Since 2024, Gmail, Yahoo and Outlook require SPF, DKIM and DMARC — without them your launch emails, password resets and receipts land in spam or get rejected. ShipCheck reads your public DNS live, counts your SPF lookups against the hard limit of 10, hunts down your DKIM keys, grades your DMARC policy, and writes the exact records you're missing.</p>
+  <div class="row">
+    <input id="domainInput" type="text" placeholder="yourdomain.com" autocomplete="off">
+    <button id="domainBtn" class="primary" type="button">Check domain</button>
+    <button id="domainSample" class="ghost" type="button">Try github.com</button>
+  </div>
+  <p id="domainMsg" class="msg" role="status"></p>
+  <div id="domainResults"></div>
+</section>
+
+<section class="card">
+  <h2>Why one tool for all three?</h2>
+  <p>Because launches fail in predictable places, and today each check lives in a different tool — repo doctors are install-only CLIs, dependency scanners are paid SaaS (Snyk, Socket) or single-purpose pages, and DNS checkers show raw records without a launch verdict. The evidence that these checks matter:</p>
+  <ul>
+    <li><b>86% of codebases</b> contain open-source components with known vulnerabilities, and the average app carries ~911 open-source components (Black Duck OSSRA report).</li>
+    <li>GitHub scores every public repo's community health — most new projects sit under 30%: no contributing guide, no security policy, no templates.</li>
+    <li>Gmail/Yahoo (2024) and Outlook (2025) <b>require</b> SPF + DKIM + DMARC for senders; missing records mean spam folders or rejected mail.</li>
+  </ul>
+  <p class="muted">ShipCheck is free, unlimited, open source (MIT), needs no account, and runs entirely in your browser against public APIs (GitHub, npm, OSV, Cloudflare DNS). Honest limits: GitHub's unauthenticated API allows ~60 checks/hour; vulnerability checks use the lowest version your semver range allows; DKIM keys are found by trying common selectors — if your provider uses a custom selector, the check can miss it.</p>
+</section>
+
+<footer class="muted center">
+  <p>ShipCheck — free forever · open source (MIT) · made for indie developers launching in public.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
